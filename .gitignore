@@ -1,0 +1,22 @@
+# Carpetas de caché de Python
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Archivos temporales de entorno
+.env
+.venv
+env/
+venv/
+
+# Archivos de configuración de IDEs
+.vscode/
+.idea/
+
+# Archivos de logs
+*.log
+
+# Archivos de compilación / dist
+build/
+dist/
+*.egg-info/
