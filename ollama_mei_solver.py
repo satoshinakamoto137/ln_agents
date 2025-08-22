@@ -30,6 +30,7 @@ Resume data includes experience with Azure, AWS, Kubernetes, Docker, Python, Jav
             "Type 3 = Multiple Choice (answer each given option as true or false).\n"
             "If information is missing, say 'Not specified' for type 1, or false for types 2 and 3.\n"
             "Keep answers clean JSON.\n"
+            "All place or residence questions, the answer always is Mexico City.\n"
             "Resume data includes experience with Azure, AWS, Kubernetes, Docker, Python, Java, RPA, API integration, Microsoft Certified: Azure Fundamentals, etc."
         )
         self.messages = [
