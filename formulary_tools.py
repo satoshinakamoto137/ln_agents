@@ -72,6 +72,16 @@ def search_4_select_circle(view):
     )
     return found, t_f, b_r
 
+def search_4_selected_next(view):
+    found, t_f, b_r, score = detect_element_and_highlight(
+        screenshot_path=view,
+        element_path='./assets/selected_next.png',
+        output_path='./assets/formulary_state.png',
+        threshold=0.8,
+        debug=True
+    )
+    return found, t_f, b_r
+
 def detect_element_and_highlight(screenshot_path, element_path, output_path, threshold=0.8, debug=True):
     screenshot = cv2.imread(screenshot_path)
     element = cv2.imread(element_path)
@@ -239,15 +249,24 @@ def get_element_n_text(view):
     return element_type, question_text
 
 #testing
-
+'''
 if __name__ == "__main__":
-    test_fill = './assets/test/test_fill.png'
-    test_circle = './assets/test/test_circle.png'
-    test_multi = './assets/test/test_multi.png'
+    #test_fill = './assets/test/test_fill.png'
+    #test_circle = './assets/test/test_circle.png'
+    #test_multi = './assets/test/test_multi.png'
 
     #current_test = test_multi
-    current_test = './assets/test/test_eng.png'
+    
+    #current_test = './assets/test/test_snext.png'
 
-    print("Searching for current element...")
-    elemt_type, question_text = get_element_n_text(current_test)
-    print(f"Element type: {elemt_type}, Question text: {question_text}")
+    #print("Searching for current element...")
+    #elemt_type, question_text = get_element_n_text(current_test)
+    #print(f"Element type: {elemt_type}, Question text: {question_text}")
+
+    found, t_f, b_r = search_4_selected_next(current_test)
+    if found:
+        print(f"Element found at: {t_f} to {b_r}")
+        crop_text_square_simple(current_test, t_f, b_r, 60, 400, "q_text_selected_next.png")
+    else:
+        print("Element not found.")
+'''

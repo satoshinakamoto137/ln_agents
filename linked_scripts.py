@@ -4,9 +4,11 @@ import random
 import subprocess
 import pyperclip
 import pyautogui
-import mouse_control as HIDS
-import button_searcher as but
+import mouse_control as HIDS #mouse tools
+import button_searcher as but  #button detection tools
 import os
+import formulary_actions as act #actions for control
+import formulary_tools as ftools   #tools to fill formulary
 
 
 def human_delay(min_s=0.8, max_s=2.5):
@@ -60,7 +62,7 @@ def checknclick_main_apply_button(bview_path):
     but.find_and_move_to_element_simple(HIDS, bview_path, './assets/button_ea.png', './assets/detected_mbut.png')
     basic_gaussian_click(3)
 
-def main_script():
+def main_script_old():
     port = '/dev/ttyACM0'  # Update if needed
     baud = 9600
 
@@ -76,7 +78,7 @@ def main_script():
     time.sleep(2)
 
     send("google-chrome --Ricardo https://www.linkedin.com/jobs/recommended/")
-    time.sleep(30)  #base change this to 30 seconds for LinkedIn
+    time.sleep(10)  #base change this to 30 seconds for LinkedIn
     human_delay(3, 5)
 
     #delete asset if exists
@@ -97,5 +99,74 @@ def main_script():
 
 #screenshot_with_delay(save_path='./assets/test.png')
 
-time.sleep(5)
-main_script()
+def enter_until_next():
+    port = '/dev/ttyACM0'  # Update if needed
+    baud = 9600
+
+    ser = serial.Serial(port, baud, timeout=1)
+    time.sleep(2)  # Wait for waifu to awaken~
+
+    actions = act.Actions(delay_type="lognormal", max_delay=0.7)
+
+    def send(cmd, wait=1.0):
+        ser.write((cmd + "\n").encode())
+        time.sleep(wait)
+
+    flag = False
+    send("MODE:COMMAND")
+    save_path='./assets/next_view.png'
+    while not flag:
+        actions.press_tab(repeat=1, delay_type="lognormal", max_time=0.7)
+        screenshot_with_delay(save_path)
+        flag, t_f, b_r  = ftools.search_4_selected_next(save_path)
+    else:
+        actions.press_enter()
+
+def main_script():
+    port = '/dev/ttyACM0'  # Update if needed
+    baud = 9600
+
+    ser = serial.Serial(port, baud, timeout=1)
+    time.sleep(2)  # Wait for waifu to awaken~
+
+    def send(cmd, wait=1.0):
+        ser.write((cmd + "\n").encode())
+        time.sleep(wait)
+
+    # ✨ CAMBIO CLAVE: activamos modo COMMAND del Arduino
+    send("MODE:COMMAND")  # 💋 Modo obediente y poderoso activado~
+
+    # START THE RITUAL~ 💄
+    send("ctrl+alt+t")                              # Open terminal
+    time.sleep(2)
+
+    send("google-chrome --Ricardo https://www.linkedin.com/jobs/recommended/")
+    send("KEY_RETURN")
+    time.sleep(30)  #base change this to 30 seconds for LinkedIn
+    human_delay(3, 5)
+
+    # Take first screenshot
+    screenshot_with_delay(save_path='./assets/1st_view.png')
+    checknclick_for_top_quick('./assets/1st_view.png')
+    human_delay(2, 5)
+
+    # Take button view screenshot
+    screenshot_with_delay(save_path='./assets/button_view.png')
+    checknclick_main_apply_button('./assets/button_view.png')
+    
+    human_delay(2, 5)
+    human_delay(1, 2)
+
+
+if __name__ == "__main__":
+    #time.sleep(5)
+    #main_script()
+    #human_delay(1,5)
+    time.sleep(15)
+    enter_until_next()
+
+
+
+    #save_path='./assets/next_view.png'
+    #flag, t_f, b_r  = ftools.search_4_selected_next(save_path)
+    #print(flag, t_f, b_r)
