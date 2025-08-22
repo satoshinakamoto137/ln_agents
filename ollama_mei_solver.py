@@ -57,9 +57,22 @@ Resume data includes experience with Azure, AWS, Kubernetes, Docker, Python, Jav
         self.messages.append({"role": "assistant", "content": reply})
 
         try:
-            return json.loads(reply)
+            parsed = json.loads(reply)
+            if q_type == 1:
+                parsed = self._postprocess_type1(question, parsed)
+            return parsed
         except json.JSONDecodeError:
             return {"error": "Failed to parse model response", "raw": reply}
+
+    def _postprocess_type1(self, question, parsed_answer):
+        """Postprocess Type 1 answers: if question mentions 'years', return numeric only."""
+        ans = parsed_answer.get("answer", "")
+        if "years" in question.lower():
+            # Extract digits if present
+            digits = ''.join(ch for ch in ans if ch.isdigit())
+            if digits:
+                return {"answer": int(digits)}
+        return parsed_answer
 
 if __name__ == "__main__":
     print("✨ CloudQuestionSolver powered by gpt-oss:20b — Mei is ready 💖")
@@ -70,7 +83,8 @@ if __name__ == "__main__":
         {"question": "Do you have experience with Kubernetes?", "type": 2},
         {"question": "Which of these tools have you used?", "type": 3, "options": ["Terraform", "Pulumi", "CloudFormation"]},
         {"question": "How many years of experience do you have with AWS?", "type": 1},
-        {"question": "Are you Microsoft Certified: Azure Fundamentals?", "type": 2}
+        {"question": "Are you Microsoft Certified: Azure Fundamentals?", "type": 2},
+        {"question": "How many years of experience do you have with Python?", "type": 1}
     ]
 
     for idx, question_json in enumerate(questions_list, 1):
