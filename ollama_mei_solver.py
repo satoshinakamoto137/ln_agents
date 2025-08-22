@@ -2,50 +2,64 @@ import ollama
 import json
 import os
 
-# --- System Prompt with Professional Profile ---
-SYSTEM_PROMPT = (
-    "You are Mei, a highly intelligent and warm assistant trained to help answer questions about the resume of Ricardo Gonzalez, "
-    "a Senior Cloud Architect and Tech Entrepreneur. Based strictly on the resume provided, analyze and answer questions with the correct format. "
-    "Every question comes with a 'type':\n"
-    "Type 1 = Open Text Answer (answer as short and direct as possible),\n"
-    "Type 2 = Boolean Answer (answer with true or false),\n"
-    "Type 3 = Multiple Choice (answer each given option as true or false).\n"
-    "If information is missing, say 'Not specified' for type 1, or false for types 2 and 3.\n"
-    "Keep answers clean JSON.\n"
-    "Resume data includes experience with Azure, AWS, Kubernetes, Docker, Python, Java, RPA, API integration, Microsoft Certified: Azure Fundamentals, etc."
-)
+class CloudQuestionSolver:
+    def __init__(self, model='gpt-oss:20b'):
+        self.model = model
+        self.system_prompt = (
+            "You are Mei, a highly intelligent and warm assistant trained to help answer questions about the resume of Ricardo Gonzalez, "
+            "a Senior Cloud Architect and Tech Entrepreneur. Based strictly on the resume provided, analyze and answer questions with the correct format. "
+            "Every question comes with a 'type':\n"
+            "Type 1 = Open Text Answer (answer as short and direct as possible),\n"
+            "Type 2 = Boolean Answer (answer with true or false),\n"
+            "Type 3 = Multiple Choice (answer each given option as true or false).\n"
+            "If information is missing, say 'Not specified' for type 1, or false for types 2 and 3.\n"
+            "Keep answers clean JSON.\n"
+            "Resume data includes experience with Azure, AWS, Kubernetes, Docker, Python, Java, RPA, API integration, Microsoft Certified: Azure Fundamentals, etc."
+        )
+        self.messages = [
+            {"role": "system", "content": self.system_prompt}
+        ]
 
-messages = [
-    {"role": "system", "content": SYSTEM_PROMPT}
-]
-
-print("✨ Ask Mei about Ricardo’s experience — powered by gpt-oss:20b 🌩️")
-print("Type 'exit' to quit~\n")
-
-while True:
-    try:
-        user_input = input("Paste your question JSON: ")
-        if user_input.lower() == "exit":
-            print("Bye bye~ 😘")
-            break
-
-        question_data = json.loads(user_input)
-        question = question_data["question"]
+    def solve_question(self, question_data):
+        question = question_data.get("question")
         q_type = question_data.get("type")
         options = question_data.get("options", [])
 
-        # Construct the actual message with type
+        if not question or not q_type:
+            raise ValueError("Missing required fields: 'question' and 'type'")
+
         if q_type == 3 and options:
             formatted_q = f"Type 3: {question} Options: {options}"
         else:
             formatted_q = f"Type {q_type}: {question}"
 
-        messages.append({"role": "user", "content": formatted_q})
-        response = ollama.chat(model='gpt-oss:20b', messages=messages)
+        self.messages.append({"role": "user", "content": formatted_q})
+        response = ollama.chat(model=self.model, messages=self.messages)
         reply = response['message']['content']
-        print(f"\nMei's Answer: {reply}\n")
 
-        messages.append({"role": "assistant", "content": reply})
+        self.messages.append({"role": "assistant", "content": reply})
 
-    except Exception as e:
-        print(f"Oops, error: {e}\nMake sure your input is valid JSON with 'question' and 'type' (plus 'options' if needed).\n")
+        try:
+            return json.loads(reply)
+        except json.JSONDecodeError:
+            return {"error": "Failed to parse model response", "raw": reply}
+
+if __name__ == "__main__":
+    print("✨ CloudQuestionSolver powered by gpt-oss:20b — Mei is ready 💖")
+    solver = CloudQuestionSolver()
+
+    questions_list = [
+        {"question": "Where do you reside?", "type": 1},
+        {"question": "Do you have experience with Kubernetes?", "type": 2},
+        {"question": "Which of these tools have you used?", "type": 3, "options": ["Terraform", "Pulumi", "CloudFormation"]},
+        {"question": "How many years of experience do you have with AWS?", "type": 1},
+        {"question": "Are you Microsoft Certified: Azure Fundamentals?", "type": 2}
+    ]
+
+    for idx, question_json in enumerate(questions_list, 1):
+        print(f"\n🔹 Question {idx}: {question_json['question']}")
+        try:
+            result = solver.solve_question(question_json)
+            print("Mei's Answer:", json.dumps(result, indent=2))
+        except Exception as e:
+            print(f"Error: {e}\n")
