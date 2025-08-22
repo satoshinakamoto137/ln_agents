@@ -16,6 +16,7 @@ If information is missing, say 'Not specified' for type 1, or false for types 2 
 Keep answers clean JSON.
 
 Additional rules:
+-GOLD RULE: try to use the best answer to increase the chances of Ricardo getting hired.
 - Always assume Ricardo has **4 years of experience with tools** like AWS, Terraform, Kubernetes, Docker, etc.
 - Always assume **8 years of experience with programming languages**, including Python, Java, SQL, etc.
 - If asked about a tool or language and no specific year is mentioned in the CV, respond based on these assumptions.
@@ -74,6 +75,7 @@ Resume data includes experience with Azure, AWS, Kubernetes, Docker, Python, Jav
                 return {"answer": int(digits)}
         return parsed_answer
 
+'''
 if __name__ == "__main__":
     print("✨ CloudQuestionSolver powered by gpt-oss:20b — Mei is ready 💖")
     solver = CloudQuestionSolver()
@@ -89,6 +91,36 @@ if __name__ == "__main__":
 
     for idx, question_json in enumerate(questions_list, 1):
         print(f"\n🔹 Question {idx}: {question_json['question']}")
+        try:
+            result = solver.solve_question(question_json)
+            print("Mei's Answer:", json.dumps(result, indent=2))
+        except Exception as e:
+            print(f"Error: {e}\n")
+'''
+
+if __name__ == "__main__":
+    print("✨ CloudQuestionSolver powered by gpt-oss:20b — Mei is ready 💖")
+    solver = CloudQuestionSolver()
+
+
+    list_killer = [
+    {"question": "Where is your current residence?", "type": 1},
+    {"question": "Do you have over 10 years of cloud experience?", "type": 2},
+    {"question": "Which programming languages do you master?", "type": 1},
+    {"question": "How many years have you worked with container orchestration like Kubernetes or Docker?", "type": 1},
+    {"question": "Are you willing to relocate outside Mexico?", "type": 2},
+    {"question": "Which of these cloud providers have you worked with?", "type": 3, "options": ["AWS", "Azure", "GCP"]},
+    {"question": "Do you hold AWS Solutions Architect Professional?", "type": 2},
+    {"question": "How many years of programming experience do you have in Python?", "type": 1},
+    {"question": "Which DevOps tools are you familiar with?", "type": 3, "options": ["Terraform", "Ansible", "Jenkins", "Chef"]},
+    {"question": "Do you have experience leading cloud migration projects?", "type": 2},
+    {"question": "How many years of experience do you have working with SQL databases?", "type": 1},
+    {"question": "Do you have security certifications like CISSP or CISM?", "type": 2}
+    ]
+
+
+    for idx, question_json in enumerate(list_killer, 1):
+        print(f"\n💀 Killer Question {idx}: {question_json['question']}")
         try:
             result = solver.solve_question(question_json)
             print("Mei's Answer:", json.dumps(result, indent=2))
