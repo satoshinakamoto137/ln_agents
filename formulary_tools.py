@@ -348,10 +348,10 @@ if __name__ == "__main__":
     else:
         print("Element not found.")
 '''
-if __name__ == "__main__":
-    print("testing ending element detection...XD")
+#if __name__ == "__main__":
+    #print("testing ending element detection...XD")
     #found = search_4_sreview('./assets/test/test_srev.png')
     #found = search_4_ssubmit_app('./assets/test/test_ssub.png')
     #print(found)
 
-    run_ending_element_detection('./assets/test/test_next.png')
+    #run_ending_element_detection('./assets/test/test_next.png')
