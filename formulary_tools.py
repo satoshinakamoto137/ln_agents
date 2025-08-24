@@ -82,6 +82,26 @@ def search_4_selected_next(view):
     )
     return found, t_f, b_r
 
+def search_4_ssubmit_app(view):
+    found, t_f, b_r, score = detect_element_and_highlight(
+        screenshot_path=view,
+        element_path='./assets/ssub.png',
+        output_path='./assets/formulary_state.png',
+        threshold=0.8,
+        debug=True
+    )
+    return found, t_f, b_r
+
+def search_4_sreview(view):
+    found, t_f, b_r, score = detect_element_and_highlight(
+        screenshot_path=view,
+        element_path='./assets/srev.png',
+        output_path='./assets/formulary_state.png',
+        threshold=0.8,
+        debug=True
+    )
+    return found, t_f, b_r
+
 def detect_element_and_highlight(screenshot_path, element_path, output_path, threshold=0.8, debug=True):
     screenshot = cv2.imread(screenshot_path)
     element = cv2.imread(element_path)
@@ -127,6 +147,64 @@ def detect_element_and_highlight(screenshot_path, element_path, output_path, thr
         return True, top_left, bottom_right, max_val
     else:
         return False, None, None, max_val
+    
+def search_4_any(view, elements):
+    """
+    Tries to detect any matching UI element in a screenshot from a list of target elements.
+
+    Parameters:
+    - view (str): Path to the screenshot image where elements will be searched.
+    - elements (List[Tuple[str, str]]): A list of tuples in the format (label, element_path),
+      where `label` is a name/identifier for the element, and `element_path` is the path
+      to the PNG file that represents the UI element to detect.
+
+    Returns:
+    - found (bool): True if any element is found, False otherwise.
+    - label (str or None): The label of the detected element. None if no match found.
+    - top_left (Tuple[int, int] or None): Top-left corner of the matched region. None if not found.
+    - bottom_right (Tuple[int, int] or None): Bottom-right corner of the matched region. None if not found.
+    - score (float or None): Template matching score of the best match. None if no match found.
+    """
+    for label, element_path in elements:
+        found, t_f, b_r, score = detect_element_and_highlight(
+            screenshot_path=view,
+            element_path=element_path,
+            output_path='./assets/formulary_state.png',
+            threshold=0.8,
+            debug=True
+        )
+        if found:
+            print(f"[INFO] Match found: {label} (score: {score:.4f})")
+            return True, label, t_f, b_r, score
+
+    print("[INFO] No match found for any element.")
+    return False, None, None, None, None
+
+def run_ending_element_detection(screenshot_path):
+    """
+    Runs multi-element detection on the provided screenshot.
+    
+    Parameters:
+    - screenshot_path (str): Path to the screenshot to analyze.
+
+    Returns:
+    - Tuple: (found, label, top_left, bottom_right, score)
+    """
+    elements_to_check = [
+        ("selected_next", "./assets/selected_next.png"),
+        ("s_submit_app", "./assets/ssub.png"),
+        ("s_review", "./assets/srev.png")
+    ]
+
+    found, label, top_left, bottom_right, score = search_4_any(screenshot_path, elements_to_check)
+
+    if found:
+        print(f"Element '{label}' found at {top_left} with score {score:.4f}")
+    else:
+        print("No element matched.")
+
+    return found, label, top_left, bottom_right, score
+
     
 
 def crop_text_square_simple(screenshot_path, t_f, b_r, square_height, square_length, output_name="question_crop.png"):
@@ -270,3 +348,10 @@ if __name__ == "__main__":
     else:
         print("Element not found.")
 '''
+if __name__ == "__main__":
+    print("testing ending element detection...XD")
+    #found = search_4_sreview('./assets/test/test_srev.png')
+    #found = search_4_ssubmit_app('./assets/test/test_ssub.png')
+    #print(found)
+
+    run_ending_element_detection('./assets/test/test_next.png')
