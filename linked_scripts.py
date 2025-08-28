@@ -9,10 +9,34 @@ import button_searcher as but  #button detection tools
 import os
 import formulary_actions as act #actions for control
 import formulary_tools as ftools   #tools to fill formulary
+#import ollama_mei_solver as mei  #AI tools must be implemented by api call
+import requests
+import re
 
+def curl_to_ollama(json_input, endpoint="http://localhost:5002/solve"):
+    try:
+        response = requests.post(endpoint, json=json_input)
+        response.raise_for_status()
+        result = response.json()
+        print("📦 Raw response from Mei:\n", result)
+        return result
+    except requests.exceptions.RequestException as e:
+        return {"error": str(e)}
 
 def human_delay(min_s=0.8, max_s=2.5):
     time.sleep(random.uniform(min_s, max_s))
+
+def parse_question_to_json(q_type, question):
+    return {
+        "question": question,
+        "type": int(q_type)  # Asegura que sea int, no str
+    }
+
+def clean_question_text(raw_question):
+    cleaned = re.sub(r"^[^a-zA-Z0-9]+", "", raw_question)
+    cleaned = re.sub(r"[^a-zA-Z0-9? ]+$", "", cleaned)
+    cleaned = re.sub(r"\s+", " ", cleaned)
+    return cleaned.strip()
 
 def screenshot_with_delay(
     delay='lognormal', 
@@ -122,6 +146,56 @@ def enter_until_next():
     else:
         actions.press_enter()
 
+
+def seek_submits_and_fill():
+    #the idea of this function is to go forward until reach submit.
+
+    port = '/dev/ttyACM0'  # Update if needed
+    baud = 9600
+
+    ser = serial.Serial(port, baud, timeout=1)
+    time.sleep(2)  # Wait for waifu to awaken~
+
+    actions = act.Actions(delay_type="lognormal", max_delay=0.7)
+
+    def send(cmd, wait=1.0):
+        ser.write((cmd + "\n").encode())
+        time.sleep(wait)
+
+    flag = False
+    send("MODE:COMMAND")
+    save_path='./assets/next_view.png'
+    while not flag:
+        actions.press_tab(repeat=1, delay_type="lognormal", max_time=0.7) #sending tab to go forward
+        screenshot_with_delay(save_path)
+        flag, t_f, b_r  = ftools.search_4_selected_next(save_path)
+    else:
+        actions.press_enter()
+
+    return  #to be implemented
+
+def basic_fill_action():
+
+    save_path='./assets/formulary_state.png'
+
+    #send("MODE:COMMAND")
+    #actions.press_tab(repeat=1, delay_type="lognormal", max_time=0.7)
+    screenshot_with_delay(save_path=save_path)
+    q_type, question = ftools.get_element_n_text(save_path)
+    cleaned_question = clean_question_text(question)
+
+    print(f"Question type: {q_type}\nQuestion text: {cleaned_question}")
+    json_input = parse_question_to_json(q_type, cleaned_question)
+    print(f"JSON to send to MEI: {json_input}")
+    answer = curl_to_ollama(json_input)
+    print(f"Answer from MEI: {answer}")
+
+    #actions._set_mode("HUMAN_LIVE") #for type one kind of answer
+
+    # Paso 3: escribir como humano con delays
+    #actions.type_human("somo chingones!", delay_type="lognormal", max_time=0.5)
+
+
 def main_script():
     port = '/dev/ttyACM0'  # Update if needed
     baud = 9600
@@ -162,11 +236,18 @@ if __name__ == "__main__":
     #time.sleep(5)
     #main_script()
     #human_delay(1,5)
-    time.sleep(15)
-    enter_until_next()
+    
+    #time.sleep(15)
+    #enter_until_next()
 
+    print("😆")
+    time.sleep(7)
+    basic_fill_action()
 
 
     #save_path='./assets/next_view.png'
     #flag, t_f, b_r  = ftools.search_4_selected_next(save_path)
     #print(flag, t_f, b_r)
+
+
+#is necessary to implement a function that forces flow on answers when the model fail with correct answer, making a repetition of requests until get it right.

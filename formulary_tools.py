@@ -290,15 +290,15 @@ def crop_text_square_with_direction(screenshot_path, t_f, b_r, square_height, sq
 
 def crop_by_element(view, element_name, element_type, t_f, b_r):
     if element_type == 1: # fill
-        cropped_path = crop_text_square_with_direction(view, t_f, b_r, 35, -666, f"q_text_{element_name}.png")
+        cropped_path = crop_text_square_with_direction(view, t_f, b_r, 37, -670, f"q_text_{element_name}.png")
     elif element_type == 2: # multi
-        cropped_path = crop_text_square_with_direction(view, t_f, b_r, 35, -666, f"q_text_{element_name}.png")
+        cropped_path = crop_text_square_with_direction(view, t_f, b_r, 37, -670, f"q_text_{element_name}.png")
     elif element_type == 3: # circle
         cropped_path = crop_text_square_with_direction(view, t_f, b_r, 35, 650, f"q_text_{element_name}.png")
 
     return cropped_path
 
-def get_element_n_text(view):
+def get_element_n_text(view): #this function just works for one and two type questions.
     """
     Detecta el elemento actual, recorta el área de la pregunta y extrae su texto por OCR.
     

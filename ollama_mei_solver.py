@@ -53,7 +53,12 @@ Resume data includes experience with Azure, AWS, Kubernetes, Docker, Python, Jav
 
         self.messages.append({"role": "user", "content": formatted_q})
         response = ollama.chat(model=self.model, messages=self.messages)
-        reply = response['message']['content']
+
+        reply = response['message']['content'].strip()
+
+        # 😏 Desnudamos el bloque Markdown
+        if reply.startswith("```json") and reply.endswith("```"):
+            reply = reply[7:-3].strip()
 
         self.messages.append({"role": "assistant", "content": reply})
 
@@ -64,6 +69,7 @@ Resume data includes experience with Azure, AWS, Kubernetes, Docker, Python, Jav
             return parsed
         except json.JSONDecodeError:
             return {"error": "Failed to parse model response", "raw": reply}
+
 
     def _postprocess_type1(self, question, parsed_answer):
         """Postprocess Type 1 answers: if question mentions 'years', return numeric only."""
@@ -96,7 +102,7 @@ if __name__ == "__main__":
             print("Mei's Answer:", json.dumps(result, indent=2))
         except Exception as e:
             print(f"Error: {e}\n")
-'''
+#
 
 if __name__ == "__main__":
     print("✨ CloudQuestionSolver powered by gpt-oss:20b — Mei is ready 💖")
@@ -126,3 +132,5 @@ if __name__ == "__main__":
             print("Mei's Answer:", json.dumps(result, indent=2))
         except Exception as e:
             print(f"Error: {e}\n")
+            
+    '''
