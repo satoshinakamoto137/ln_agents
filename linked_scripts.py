@@ -38,6 +38,11 @@ def clean_question_text(raw_question):
     cleaned = re.sub(r"\s+", " ", cleaned)
     return cleaned.strip()
 
+def get_py_ans(answer_dict):
+    if isinstance(answer_dict, dict):
+        return answer_dict.get("answer", "")
+    return ""
+
 def screenshot_with_delay(
     delay='lognormal', 
     max_time=5, 
@@ -176,6 +181,18 @@ def seek_submits_and_fill():
 
 def basic_fill_action():
 
+    port = '/dev/ttyACM0'  # Update if needed
+    baud = 9600
+
+    ser = serial.Serial(port, baud, timeout=1)
+    time.sleep(2)  # Wait for waifu to awaken~
+
+    actions = act.Actions(delay_type="lognormal", max_delay=0.7)
+
+    def send(cmd, wait=1.0):
+        ser.write((cmd + "\n").encode())
+        time.sleep(wait)
+
     save_path='./assets/formulary_state.png'
 
     #send("MODE:COMMAND")
@@ -189,6 +206,21 @@ def basic_fill_action():
     print(f"JSON to send to MEI: {json_input}")
     answer = curl_to_ollama(json_input)
     print(f"Answer from MEI: {answer}")
+
+    if q_type == 1:
+        #v_answer = validate_answer(answer) # need to implement validation of answer for type one
+
+        answer_value = str(get_py_ans(answer))
+        print(f"Answer to type: {answer_value}")
+        actions = act.Actions(delay_type="lognormal", max_delay=0.7)
+        actions._set_mode("HUMAN_LIVE")
+        actions.type_human(answer_value, delay_type="lognormal", max_time=0.5)
+
+        #actions.type_human(v_answer, delay_type="lognormal", max_time=0.5)
+    elif q_type == 2:
+        return #to be implemented
+    else:
+        return #to be implemented
 
     #actions._set_mode("HUMAN_LIVE") #for type one kind of answer
 

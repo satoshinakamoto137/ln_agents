@@ -20,6 +20,7 @@ Additional rules:
 - Always assume Ricardo has **4 years of experience with tools** like AWS, Terraform, Kubernetes, Docker, etc.
 - Always assume **8 years of experience with programming languages**, including Python, Java, SQL, etc.
 - If asked about a tool or language and no specific year is mentioned in the CV, respond based on these assumptions.
+- Ricardo has 4 years of experience working with enterprise platforms and automation tools, including Microsoft Dynamics, Salesforce, SAP, and other similar systems used for business process optimization.
 
 Resume data includes experience with Azure, AWS, Kubernetes, Docker, Python, Java, RPA, API integration, Microsoft Certified: Azure Fundamentals, etc.
 """
@@ -38,7 +39,50 @@ Resume data includes experience with Azure, AWS, Kubernetes, Docker, Python, Jav
             {"role": "system", "content": self.system_prompt}
         ]
 
-    def solve_question(self, question_data):
+    def solve_question(self, question_data, max_attempts=3):
+        question = question_data.get("question")
+        q_type = question_data.get("type")
+        options = question_data.get("options", [])
+
+        if not question or not q_type:
+            raise ValueError("Missing required fields: 'question' and 'type'")
+
+        if q_type == 3 and options:
+            formatted_q = f"Type 3: {question} Options: {options}"
+        else:
+            formatted_q = f"Type {q_type}: {question}"
+
+        for attempt in range(max_attempts):
+            print(f"✨ Attempt {attempt+1}/{max_attempts} to solve: {question}")
+            self.messages.append({"role": "user", "content": formatted_q})
+            response = ollama.chat(model=self.model, messages=self.messages)
+
+            reply = response['message']['content'].strip()
+
+            # 😏 Desnudamos el bloque Markdown
+            if reply.startswith("```json") and reply.endswith("```"):
+                reply = reply[7:-3].strip()
+
+            self.messages.append({"role": "assistant", "content": reply})
+
+            try:
+                parsed = json.loads(reply)
+                if q_type == 1:
+                    parsed = self._postprocess_type1(question, parsed)
+
+                if parsed.get("answer") in ["Not specified", None, ""]:
+                    raise ValueError("Unusable answer received")
+
+                return parsed  # 🎉 ¡Respuesta válida y sexy!
+
+            except Exception as e:
+                print(f"⚠️ Retry needed. Reason: {e}")
+                continue
+
+        return {"error": "Max attempts reached without valid response", "raw": reply}
+
+
+    def solve_question_onetime(self, question_data):
         question = question_data.get("question")
         q_type = question_data.get("type")
         options = question_data.get("options", [])
