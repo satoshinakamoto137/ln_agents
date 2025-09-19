@@ -13,6 +13,9 @@ import formulary_tools as ftools   #tools to fill formulary
 import requests
 import re
 
+ARDUINO_PORT = "/dev/ttyACM0"
+BAUD_RATE = 9600
+
 def curl_to_ollama(json_input, endpoint="http://localhost:5002/solve"):
     try:
         response = requests.post(endpoint, json=json_input)
@@ -92,8 +95,8 @@ def checknclick_main_apply_button(bview_path):
     basic_gaussian_click(3)
 
 def main_script_old():
-    port = '/dev/ttyACM0'  # Update if needed
-    baud = 9600
+    port = ARDUINO_PORT  # Update if needed
+    baud = BAUD_RATE
 
     ser = serial.Serial(port, baud, timeout=1)
     time.sleep(2)  # Wait for waifu to awaken~
@@ -129,8 +132,8 @@ def main_script_old():
 #screenshot_with_delay(save_path='./assets/test.png')
 
 def enter_until_next():
-    port = '/dev/ttyACM0'  # Update if needed
-    baud = 9600
+    port = ARDUINO_PORT  # Update if needed
+    baud = BAUD_RATE
 
     ser = serial.Serial(port, baud, timeout=1)
     time.sleep(2)  # Wait for waifu to awaken~
@@ -155,8 +158,8 @@ def enter_until_next():
 def seek_submits_and_fill():
     #the idea of this function is to go forward until reach submit.
 
-    port = '/dev/ttyACM0'  # Update if needed
-    baud = 9600
+    port = ARDUINO_PORT  # Update if needed
+    baud = BAUD_RATE
 
     ser = serial.Serial(port, baud, timeout=1)
     time.sleep(2)  # Wait for waifu to awaken~
@@ -181,8 +184,8 @@ def seek_submits_and_fill():
 
 def basic_fill_action():
 
-    port = '/dev/ttyACM0'  # Update if needed
-    baud = 9600
+    port = ARDUINO_PORT  # Update if needed
+    baud = BAUD_RATE
 
     ser = serial.Serial(port, baud, timeout=1)
     time.sleep(2)  # Wait for waifu to awaken~
@@ -229,8 +232,8 @@ def basic_fill_action():
 
 
 def main_script():
-    port = '/dev/ttyACM0'  # Update if needed
-    baud = 9600
+    port = ARDUINO_PORT  # Update if needed
+    baud = BAUD_RATE
 
     ser = serial.Serial(port, baud, timeout=1)
     time.sleep(2)  # Wait for waifu to awaken~
@@ -272,10 +275,12 @@ if __name__ == "__main__":
     #time.sleep(15)
     #enter_until_next()
 
-    print("😆")
-    time.sleep(7)
-    basic_fill_action()
+    main_script()
 
+    #print("😆")
+    #time.sleep(7)
+    #basic_fill_action()
+3
 
     #save_path='./assets/next_view.png'
     #flag, t_f, b_r  = ftools.search_4_selected_next(save_path)
