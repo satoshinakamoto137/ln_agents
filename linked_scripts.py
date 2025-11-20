@@ -13,7 +13,7 @@ import formulary_tools as ftools   #tools to fill formulary
 import requests
 import re
 
-ARDUINO_PORT = "/dev/ttyACM0"
+ARDUINO_PORT = "/dev/ttyACM1"
 BAUD_RATE = 9600
 
 def curl_to_ollama(json_input, endpoint="http://localhost:5002/solve"):
@@ -81,10 +81,10 @@ def screenshot_with_delay(
         return img
 
 def basic_gaussian_click(time = 5):
-    HIDS.click_advanced_delay(side='left', delay_model='gaussian', max_time=time, arduino_port='/dev/ttyACM0')
+    HIDS.click_advanced_delay(side='left', delay_model='gaussian', max_time=time, arduino_port=ARDUINO_PORT)
     
 def basic_lognormal_click(time = 5):
-    HIDS.click_advanced_delay(side='left', delay_model='lognormal', max_time=time, arduino_port='/dev/ttyACM0')
+    HIDS.click_advanced_delay(side='left', delay_model='lognormal', max_time=time, arduino_port=ARDUINO_PORT)
 
 def checknclick_for_top_quick(view_path):
     but.detect_elements_and_select_upper(view_path, './assets/small_apply.png', './assets/detected_highs.png')
@@ -92,6 +92,10 @@ def checknclick_for_top_quick(view_path):
 
 def checknclick_main_apply_button(bview_path):
     but.find_and_move_to_element_simple(HIDS, bview_path, './assets/button_ea.png', './assets/detected_mbut.png')
+    basic_gaussian_click(3)
+
+def checknclick_for_connect(view_path):
+    but.detect_elements_and_select_upper(view_path, './assets/connect_but.png', './assets/detected_connect.png')
     basic_gaussian_click(3)
 
 def main_script_old():
@@ -266,6 +270,63 @@ def main_script():
     human_delay(2, 5)
     human_delay(1, 2)
 
+def script_add_contact():
+    port = ARDUINO_PORT  # Update if needed
+    baud = BAUD_RATE
+
+    ser = serial.Serial(port, baud, timeout=1)
+    time.sleep(2)  # Wait for waifu to awaken~
+
+    def send(cmd, wait=1.0):
+        ser.write((cmd + "\n").encode())
+        time.sleep(wait)
+
+    # ✨ CAMBIO CLAVE: activamos modo COMMAND del Arduino
+    send("MODE:COMMAND")  # 💋 Modo obediente y poderoso activado~
+
+    # START THE RITUAL~ 💄
+    send("ctrl+alt+t")                              # Open terminal
+    time.sleep(2)
+
+    send("google-chrome --Ricardo https://www.linkedin.com/mynetwork/grow/")
+    send("KEY_RETURN")
+    #time.sleep(30)  #base change this to 30 seconds for LinkedIn
+    human_delay(3, 5)
+
+    #========================Main sscript space========================#
+
+    HIDS.mouse_scrolling(-5, port=ARDUINO_PORT) #it works scrolling down delux! 😎
+
+    human_delay(1, 3)
+
+    # Take first screenshot
+    screenshot_with_delay(save_path='./assets/1st_view.png')
+    checknclick_for_connect('./assets/1st_view.png')
+
+    human_delay(5, 10)
+
+    #============================================================#
+
+    print("✨ Before close...")
+
+    send("MODE:COMMAND")  # Return to command mode
+
+    time.sleep(3)
+    send("ctrl+w")                              # New terminal
+    time.sleep(3)
+    send("sleep 3 && xdotool getactivewindow windowkill") 
+    time.sleep(2)
+    send("KEY_RETURN")
+
+    ser.close()
+
+    # Take button view screenshot
+    #screenshot_with_delay(save_path='./assets/button_view.png')
+    #checknclick_main_apply_button('./assets/button_view.png')
+    
+    #human_delay(2, 5)
+    #human_delay(1, 2)
+
 
 if __name__ == "__main__":
     #time.sleep(5)
@@ -275,7 +336,12 @@ if __name__ == "__main__":
     #time.sleep(15)
     #enter_until_next()
 
-    main_script()
+    #========================Main sscript space========================#
+
+    #main_script()
+    script_add_contact()
+
+    #============================================================#
 
     #print("😆")
     #time.sleep(7)
@@ -288,3 +354,5 @@ if __name__ == "__main__":
 
 
 #is necessary to implement a function that forces flow on answers when the model fail with correct answer, making a repetition of requests until get it right.
+
+### iMPORTANT NOTE: The arduino currently is working with the ultimate_HID_1_5.ino sketch, that allows to switch between COMMAND and HUMAN_LIVE modes. 
