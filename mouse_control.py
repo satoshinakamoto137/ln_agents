@@ -2,8 +2,9 @@ import serial
 import time
 import pyautogui
 import time, random, serial
+import linked_scripts as ls
 
-ARDUINO_PORT = "/dev/ttyACM0"
+ARDUINO_PORT = ls.ARDUINO_PORT
 BAUD_RATE = 9600
 
 def send_command_bk1(ser, cmd):
@@ -368,6 +369,27 @@ def go_to_position(
 
     final_x, final_y = get_cursor_position()
     print(f"✅ Final position: ({final_x}, {final_y})")
+
+
+def mouse_scrolling(steps: int, port=None, baudrate=9600):
+    """
+    Envía comandos de scroll al dispositivo Arduino.
+
+    steps > 0  ⇒ scroll arriba
+    steps < 0  ⇒ scroll abajo
+    """
+    try:
+        with serial.Serial(port, baudrate, timeout=1) as ser:
+            time.sleep(2)  # espera a que se inicialice
+
+            direction = "SCROLL UP" if steps > 0 else "SCROLL DOWN"
+            for _ in range(abs(steps)):
+                ser.write((direction + "\n").encode())
+                time.sleep(0.05)  # pequeño delay entre comandos
+            print("Scroll enviado:", direction, "x", abs(steps))
+
+    except serial.SerialException as e:
+        print("💔 Error al conectar con el dispositivo:", e)
 
 
 '''
