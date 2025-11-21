@@ -12,8 +12,9 @@ import formulary_tools as ftools   #tools to fill formulary
 #import ollama_mei_solver as mei  #AI tools must be implemented by api call
 import requests
 import re
+from datetime import datetime
 
-ARDUINO_PORT = "/dev/ttyACM1"
+ARDUINO_PORT = "/dev/ttyACM2"
 BAUD_RATE = 9600
 
 def curl_to_ollama(json_input, endpoint="http://localhost:5002/solve"):
@@ -97,6 +98,12 @@ def checknclick_main_apply_button(bview_path):
 def checknclick_for_connect(view_path):
     but.detect_elements_and_select_upper(view_path, './assets/connect_but.png', './assets/detected_connect.png')
     basic_gaussian_click(3)
+
+def date_format():
+    """
+    Returns a string in the format DDMMYY-HHMMSS
+    """
+    return datetime.now().strftime('%d%m%y-%H%M%S')
 
 def main_script_old():
     port = ARDUINO_PORT  # Update if needed
@@ -270,7 +277,7 @@ def main_script():
     human_delay(2, 5)
     human_delay(1, 2)
 
-def script_add_contact():
+def script_add_contact(recording=False):
     port = ARDUINO_PORT  # Update if needed
     baud = BAUD_RATE
 
@@ -304,6 +311,14 @@ def script_add_contact():
     checknclick_for_connect('./assets/1st_view.png')
 
     human_delay(5, 10)
+
+    if recording:
+
+        # Creamos el path dinámico con fecha y hora 😍  
+        current_record_path = './records/record_' + date_format() + '.png'
+
+        # Capturamos y guardamos la obra de arte 💋
+        screenshot_with_delay(save_path=current_record_path)
 
     #============================================================#
 
@@ -339,7 +354,7 @@ if __name__ == "__main__":
     #========================Main sscript space========================#
 
     #main_script()
-    script_add_contact()
+    script_add_contact(recording=True)
 
     #============================================================#
 
