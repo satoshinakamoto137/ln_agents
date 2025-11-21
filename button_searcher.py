@@ -88,7 +88,7 @@ def middle_rectangle_point(rectangle_coordinates):
     ym = (y1 + y2) // 2
     return (xm, ym)
 
-def noisy_coords(coords, gap='gaussian', limit=5):
+def noisy_coords_simetric(coords, gap='gaussian', limit=5):
     """
     Adds a small random noise to (x, y) coords, making actions less predictable.
     - gap: 'gaussian' or 'lognormal'
@@ -113,6 +113,27 @@ def noisy_coords(coords, gap='gaussian', limit=5):
     new_y = y + dy
     return (new_x, new_y)
 
+def noisy_coords(coords, gap='gaussian', limit=(5, 2)):
+    """
+    Adds small random noise to (x, y) coords, making actions less predictable.
+    - gap: 'gaussian' or 'lognormal'
+    - limit: tuple (limit_x, limit_y), max absolute value of noise for X and Y
+    """
+    x, y = coords
+    limit_x, limit_y = limit  # unpack limits
+
+    if gap == 'gaussian':
+        dx = int(max(-limit_x, min(limit_x, random.gauss(0, 2))))
+        dy = int(max(-limit_y, min(limit_y, random.gauss(0, 2))))
+    elif gap == 'lognormal':
+        dx = int(max(-limit_x, min(limit_x, random.lognormvariate(0, 1) - 1)))
+        dy = int(max(-limit_y, min(limit_y, random.lognormvariate(0, 1) - 1)))
+    else:
+        dx, dy = 0, 0  # No noise if invalid option
+    
+    new_x = x + dx
+    new_y = y + dy
+    return (new_x, new_y)
 
 def find_and_move_to_element_simple(
     mouse,
