@@ -4,7 +4,8 @@ import pyautogui
 import time, random, serial
 import linked_scripts as ls
 
-ARDUINO_PORT = ls.ARDUINO_PORT
+#ARDUINO_PORT = ls.ARDUINO_PORT
+ARDUINO_PORT = "/dev/ttyACM2"  # Update this to your Arduino port
 BAUD_RATE = 9600
 
 def send_command_bk1(ser, cmd):
@@ -391,6 +392,56 @@ def mouse_scrolling(steps: int, port=None, baudrate=9600):
     except serial.SerialException as e:
         print("💔 Error al conectar con el dispositivo:", e)
 
+def random_coord_in_center_rect(scale=4/10):
+    """
+    Devuelve una coordenada aleatoria (x, y) dentro de un rectángulo central
+    que ocupa `scale` del ancho y alto total de la pantalla.
+    Por defecto: 2/3 del área total.
+    """
+    screen_width, screen_height = pyautogui.size()
+
+    # Calcular tamaño del rectángulo interno
+    rect_width = int(screen_width * scale)
+    rect_height = int(screen_height * scale)
+
+    # Calcular el offset para centrar el rectángulo
+    offset_x = (screen_width - rect_width) // 2
+    offset_y = (screen_height - rect_height) // 2
+
+    # Generar coordenadas aleatorias dentro del rectángulo central
+    x = random.randint(offset_x, offset_x + rect_width)
+    y = random.randint(offset_y, offset_y + rect_height)
+
+    return x, y        
+
+def go_to_random_center_position(
+    scale=2/3,
+    steps=None,
+    tolerance=2,
+    time_limit=5,
+    smart_pixel=True,
+    final_step=True,
+    delay_model='gaussian',
+    step_count_model='gaussian',
+    small_mistake_prob=5,
+    noise_timing='gaussian',
+    hesitation_prob=5
+):
+    target_x, target_y = random_coord_in_center_rect(scale=scale)
+    print(f"🎯 Moving to random center position: ({target_x}, {target_y})")
+    go_to_position(
+        target_x, target_y,
+        steps=steps,
+        tolerance=tolerance,
+        time_limit=time_limit,
+        smart_pixel=smart_pixel,
+        final_step=final_step,
+        delay_model=delay_model,
+        step_count_model=step_count_model,
+        small_mistake_prob=small_mistake_prob,
+        noise_timing=noise_timing,
+        hesitation_prob=hesitation_prob
+    )
 
 '''
 if __name__ == "__main__":
