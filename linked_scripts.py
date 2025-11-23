@@ -277,7 +277,7 @@ def main_script():
     human_delay(2, 5)
     human_delay(1, 2)
 
-def script_add_contact(recording=False):
+def script_add_contact(added_conntacts = 1, recording=False, return2center=True):
     port = ARDUINO_PORT  # Update if needed
     baud = BAUD_RATE
 
@@ -302,19 +302,27 @@ def script_add_contact(recording=False):
 
     #========================Main sscript space========================#
 
-    HIDS.mouse_scrolling(-5, port=ARDUINO_PORT) #it works scrolling down delux! 😎
+    HIDS.mouse_scrolling(-6, port=ARDUINO_PORT) #it works scrolling down delux! 😎
 
     human_delay(1, 3)
 
+    for _ in range(added_conntacts):
+
     # Take first screenshot
-    screenshot_with_delay(save_path='./assets/1st_view.png')
-    checknclick_for_connect('./assets/1st_view.png')
+        human_delay(1, 10)
+        screenshot_with_delay(save_path='./assets/1st_view.png')
+        checknclick_for_connect('./assets/1st_view.png')
 
     human_delay(5, 10)
+
+    if return2center:
+
+        HIDS.go_to_random_center_position() #move mouse to center randomly
 
     if recording:
 
         # Creamos el path dinámico con fecha y hora 😍  
+        human_delay(3, 5)
         current_record_path = './records/record_' + date_format() + '.png'
 
         # Capturamos y guardamos la obra de arte 💋
@@ -354,7 +362,7 @@ if __name__ == "__main__":
     #========================Main sscript space========================#
 
     #main_script()
-    script_add_contact(recording=True)
+    script_add_contact(added_conntacts=2, recording=True, return2center=True)
 
     #============================================================#
 
